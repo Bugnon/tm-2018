@@ -1,2 +1,2 @@
 # Project 2: Title
-by Loïc Pchard, Ewin Freudiger
+by Loïc Pichard, Elwin Freudiger
