@@ -1,2 +1,2 @@
-# Project 5: Implémentation de la voiture autonome dans le réseau routier (alpha)
+# Project 5: Le futur des transports en commun
 by Gabriel Métaxian, Sarouel Mouny
