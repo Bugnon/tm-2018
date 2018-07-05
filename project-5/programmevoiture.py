@@ -17,8 +17,9 @@ from nxt.sensor import *
 # initialize the LEGO MINDSTORMS NXT
 b = nxt.locator.find_one_brick()
 
-m_left = Motor(b, PORT_B)
+m_left = Motor(b, PORT_A)
 m_right = Motor(b, PORT_C)
+m_turn = Motor(b, PORT_B)
 
 touch = Touch(b, PORT_1)
 light = Light(b, PORT_2)
@@ -76,8 +77,9 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     error = target-state
     
     steering = int(steering_gain * error)
-    m_left.run(speed-steering, True)
-    m_right.run(speed+steering, True)
+    angle = steering - m_turn.get_tacho()
+    nxt_steering(angle)    
+    m_turn.turn(50, angle)
     
     cv2.line(frameClone, (maxpos, 0), (maxpos, 480), green)
     cv2.line(frameClone, (minpos, 0), (minpos, 480), green)
