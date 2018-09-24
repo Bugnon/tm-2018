@@ -5,8 +5,8 @@ from nxt.sensor import *
 
 b = nxt.locator.find_one_brick()
 
-m_left = Motor(b, PORT_A)
-m_right = Motor(b, PORT_C)
+m_left = Motor(b, PORT_C)
+m_right = Motor(b, PORT_A)
 m_turn = Motor (b, PORT_B)
 
 speed = 0
@@ -29,10 +29,10 @@ while True:
     elif c == ord('s'):  # stop
         speed = 0
     
-    elif b == ord('a'): # turn left by 10 degrees and a speed of 50
+    elif c == ord('a'): # turn left by 10 degrees and a speed of 50
         m_turn.turn(50, -10)
 
-    elif b == ord('d'): # turn right by 10 degrees and a speed of 50
+    elif c == ord('d'): # turn right by 10 degrees and a speed of 50
         m_turn.turn(50, 10)
 
 
@@ -42,5 +42,5 @@ while True:
     
 print("quit")
     
-        
+
         

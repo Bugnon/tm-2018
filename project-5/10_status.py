@@ -1,9 +1,4 @@
-"""
-Author:  Raphael Holzer
-Date:  7 May 2018
-File:  nxt-cv2
-This program is a simple line flollower based on the Pi camera input
-"""
+
 
 ## import the necessary modules
 import cv2
@@ -17,17 +12,19 @@ from nxt.sensor import *
 # initialize the LEGO MINDSTORMS NXT
 b = nxt.locator.find_one_brick()
 
-m_left = Motor(b, PORT_A)
-m_right = Motor(b, PORT_C)
+m_left = Motor(b, PORT_C)
+m_right = Motor(b, PORT_A)
 m_turn = Motor (b, PORT_B)
 
-#touch = Touch(b, PORT_1)
-light = Light(b, PORT_1)
-#sound = Sound(b, PORT_3)
-us = Ultrasonic(b, PORT_2)
+cnt = 100 
+
+##touch = Touch(b, PORT_1)
+##light = Light(b, PORT_2)
+##sound = Sound(b, PORT_3)
+##us = Ultrasonic(b, PORT_4)
 
 steering_gain = 0.1
-speed = 20
+speed = -5
     
 ## initialize the camera
 camera = PiCamera()
@@ -70,32 +67,23 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
             maxpos = x         
         cv2.circle(frameClone, (x, 400-d), 5, red)
         cv2.circle(frameClone, (x, 400-dif), 3, blue)
-     
-##    state = int((maxpos+minpos)/2)
-##    error = target-state
-##    steering = int(steering_gain * error)
-##    angle = steering - m_turn.get_tacho()
-##    angle = min(-45, angle)
-##    angle = max(45, angle)
-##    nxt_steering(angle)   
-##    
-##
-##    m_turn.turn(10, angle)
-##    m_turn.turn(-10, angle)
-    
+
+
     state = int((maxpos+minpos)/2)
     target = 320
     error = target-state
     
     steering = int(steering_gain * error)
-    
-    m_turn.turn(-50, steering)
+
+    #m_left.run(speed-steering, True)
+    #m_right.run(speed+steering, True)
+    m_turn.run(-steering, True)
     
     cv2.line(frameClone, (maxpos, 0), (maxpos, 480), green)
     cv2.line(frameClone, (minpos, 0), (minpos, 480), green)
 
     cv2.line(frameClone, (0, 400), (640, 400), green)
-    cv2.circle(frameClone, (target, 400), 50, green)
+    cv2.circle(frameClone, (target, 400), 65, green)
     
     cv2.imshow("Camera", frameClone)
     rawCapture.truncate(0)
@@ -104,10 +92,20 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     if c == ord('q'):  # quit
         break
     elif c == ord('g'):  # go
-        speed += 10
+        speed = -10
     elif c == ord('s'):  # stop
         speed = 0
-
+    elif c == ord('p'):
+        fileName = 'frame' + str(cnt) + '.png'
+        cv2.imwrite(fileName, frameClone)
+        cnt += 1
+        print(fileName)
+        
+    print(speed)
+    
+    m_left.run(speed, True)
+    m_right.run(speed, True)
+    
 # release the motors
-m_left.idle()
-m_right.idle()
+#m_left.idle()
+#m_right.idle()

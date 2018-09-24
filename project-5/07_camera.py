@@ -92,8 +92,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     cv2.imshow("Camera", frameClone)
     rawCapture.truncate(0)
     
-    l = m_right.run, m_left.run
-    t = m_turn.run
+    
     c = cv2.waitKey(1) & 0xFF
     if c == ord('q'):  # quit
         break

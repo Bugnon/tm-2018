@@ -1,3 +1,4 @@
+
 import cv2
 from picamera import PiCamera
 from picamera.array import PiRGBArray
@@ -5,13 +6,6 @@ import nxt.locator
 from nxt.motor import *
 from nxt.sensor import *
 
-b = nxt.locator.find_one_brick()
-
-m_left = Motor(b, PORT_C)
-m_right = Motor(b, PORT_A)
-m_turn = Motor (b, PORT_B)
-
-speed = 0
 
 camera = PiCamera()
 camera.resolution = (640, 480)
@@ -29,6 +23,7 @@ white = (255, 255, 255)
 x = 340
 y = 200
 r = 30
+cnt = 100 
 
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     # grab the raw NumPy array representing the image
@@ -53,31 +48,30 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         break
     elif c == ord('w'):  # point up
         y = y-5
-        speed += -10
-        speed = min(90, speed)
         
     elif c == ord('s'):  # point down
         y = y+5
-        speed += 10
-        speed = max(-90, speed)
-
+ 
     elif c == ord('a'): # point left
         x = x-5
-        m_turn.turn(-50, 30)
-
+ 
     elif c == ord('d'): # point right
         x = x+5
-        m_turn.turn(50, 30)
-
+ 
     elif c == ord('q'): # rétrécir cerlce
         r = r-5
     elif c == ord('e'): # agrandir cerlce
         r = r+5
-    
-    print(speed)
+    elif c == ord('p'):
+        fileName = 'frame' + str(cnt) + '.png'
+        cv2.imwrite(fileName, frameClone)
+        cnt += 1
+        print(fileName)
+        
 
-##    adjust the speed parameter for both motors
-    m_left.run(speed, True)
-    m_right.run(speed, True)
-    
 print("quit")
+
+
+
+
+
