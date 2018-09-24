@@ -17,17 +17,16 @@ from nxt.sensor import *
 # initialize the LEGO MINDSTORMS NXT
 b = nxt.locator.find_one_brick()
 
-m_left = Motor(b, PORT_A)
+m_left = Motor(b, PORT_B)
 m_right = Motor(b, PORT_C)
-m_turn = Motor (b, PORT_B)
 
-#touch = Touch(b, PORT_1)
-light = Light(b, PORT_1)
-#sound = Sound(b, PORT_3)
-us = Ultrasonic(b, PORT_2)
+touch = Touch(b, PORT_1)
+light = Light(b, PORT_2)
+sound = Sound(b, PORT_3)
+us = Ultrasonic(b, PORT_4)
 
 steering_gain = 0.1
-speed = 20
+speed = 0 # forward speed
     
 ## initialize the camera
 camera = PiCamera()
@@ -35,11 +34,16 @@ camera.resolution = (640, 480)
 camera.framerate = 32
 camera.vflip = True
 camera.hflip = True
+img_cnt = 0
 
 rawCapture = PiRGBArray(camera, size=(640, 480))
 green = (0, 255, 0)
 red = (0, 0, 255)
 blue = (255, 0, 0)
+font = cv2.FONT_HERSHEY_SIMPLEX
+
+
+print('g = go, s = stop, p = photo')
 
 ## capture frames from the camera
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -70,32 +74,28 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
             maxpos = x         
         cv2.circle(frameClone, (x, 400-d), 5, red)
         cv2.circle(frameClone, (x, 400-dif), 3, blue)
-     
-##    state = int((maxpos+minpos)/2)
-##    error = target-state
-##    steering = int(steering_gain * error)
-##    angle = steering - m_turn.get_tacho()
-##    angle = min(-45, angle)
-##    angle = max(45, angle)
-##    nxt_steering(angle)   
-##    
-##
-##    m_turn.turn(10, angle)
-##    m_turn.turn(-10, angle)
-    
+
     state = int((maxpos+minpos)/2)
     target = 320
     error = target-state
     
-    steering = int(steering_gain * error)
+##    n=4
+##    for i in range(n):
+##        pass    
     
-    m_turn.turn(-50, steering)
+    steering = int(steering_gain * error)
+    m_left.run(speed-steering, True)
+    m_right.run(speed+steering, True)
     
     cv2.line(frameClone, (maxpos, 0), (maxpos, 480), green)
     cv2.line(frameClone, (minpos, 0), (minpos, 480), green)
 
     cv2.line(frameClone, (0, 400), (640, 400), green)
     cv2.circle(frameClone, (target, 400), 50, green)
+##    title = 'OpenCV TM18'
+##    cv2.putText(frameClone, title, (50, 50), font, 2, blue, 2, cv2.LINE_AA)
+    txt = 'speed='+str(speed)
+    cv2.putText(frameClone, txt, (50, 100), font, 2, green, 2, cv2.LINE_AA)
     
     cv2.imshow("Camera", frameClone)
     rawCapture.truncate(0)
@@ -104,9 +104,13 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     if c == ord('q'):  # quit
         break
     elif c == ord('g'):  # go
-        speed += 10
+        speed = 20
     elif c == ord('s'):  # stop
         speed = 0
+    elif c == ord('p'):  # save photo
+        file_name = 'img'+str(img_cnt)+'.png'
+        img_cnt +=1
+        cv2.imwrite(file_name, frameClone)
 
 # release the motors
 m_left.idle()
