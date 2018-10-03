@@ -1,6 +1,6 @@
 
 
-## import the necessary modules
+# import the necessary modules
 import cv2
 from picamera import PiCamera
 from picamera.array import PiRGBArray
@@ -12,12 +12,14 @@ from nxt.sensor import *
 # initialize the LEGO MINDSTORMS NXT
 b = nxt.locator.find_one_brick()
 
+# List of the engines and their ports
 m_left = Motor(b, PORT_C)
 m_right = Motor(b, PORT_A)
 m_turn = Motor (b, PORT_B)
 
 cnt = 100 
 
+# List of the sensors and their ports (unused on our car at the moment)
 ##touch = Touch(b, PORT_1)
 ##light = Light(b, PORT_2)
 ##sound = Sound(b, PORT_3)
@@ -26,7 +28,7 @@ cnt = 100
 steering_gain = 0.1
 speed = -5
     
-## initialize the camera
+# initialize the camera
 camera = PiCamera()
 camera.resolution = (640, 480)
 camera.framerate = 32
@@ -38,7 +40,7 @@ green = (0, 255, 0)
 red = (0, 0, 255)
 blue = (255, 0, 0)
 
-## capture frames from the camera
+# capture frames from the camera
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     # grab the raw NumPy array representing the image
     frame = f.array    
@@ -68,15 +70,16 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         cv2.circle(frameClone, (x, 400-d), 5, red)
         cv2.circle(frameClone, (x, 400-dif), 3, blue)
 
-
+    # 4 variables to make the front engine turn
     state = int((maxpos+minpos)/2)
     target = 320
     error = target-state
-    
     steering = int(steering_gain * error)
 
     #m_left.run(speed-steering, True)
     #m_right.run(speed+steering, True)
+    
+    # turn front when their is an error of direction to stay on the black line
     m_turn.run(-steering, True)
     
     cv2.line(frameClone, (maxpos, 0), (maxpos, 480), green)
@@ -88,6 +91,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     cv2.imshow("Camera", frameClone)
     rawCapture.truncate(0)
     
+    # manual functions to quit the program, make the car roll, stop the car and take screenshots
     c = cv2.waitKey(1) & 0xFF
     if c == ord('q'):  # quit
         break
@@ -100,12 +104,12 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         cv2.imwrite(fileName, frameClone)
         cnt += 1
         print(fileName)
-        
+       
     print(speed)
     
     m_left.run(speed, True)
     m_right.run(speed, True)
     
-# release the motors
-#m_left.idle()
-#m_right.idle()
+    # release the motors
+    m_left.idle()
+    m_right.idle()
