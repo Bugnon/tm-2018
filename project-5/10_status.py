@@ -73,11 +73,21 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     target = 320
     error = target-state
     
-    steering = int(steering_gain * error)
+    steering = -int(steering_gain * error)
 
-    #m_left.run(speed-steering, True)
-    #m_right.run(speed+steering, True)
-    m_turn.run(-steering, True)
+    m_left.run(speed-steering, True)
+    m_right.run(speed+steering, True)
+    position = int(m_turn.get_tacho().block_tacho_count)
+    print(position)
+    
+    if position>70 :    
+        steering = min(steering, 0)
+    elif position<-70 :
+        steering = max(steering, 0)
+        
+    m_turn.run(steering, True)
+    
+    
     
     cv2.line(frameClone, (maxpos, 0), (maxpos, 480), green)
     cv2.line(frameClone, (minpos, 0), (minpos, 480), green)
@@ -100,11 +110,16 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         cv2.imwrite(fileName, frameClone)
         cnt += 1
         print(fileName)
+    elif c == ord('v'):
+        fileName = 'frame' + str(cnt) + '.mp4'
+        cv2.VideoCapture(0)
+        cnt += 1
+        print(fileName)
         
     print(speed)
     
-    m_left.run(speed, True)
-    m_right.run(speed, True)
+    #m_left.run(speed, True)
+    #m_right.run(speed, True)
     
 # release the motors
 #m_left.idle()
